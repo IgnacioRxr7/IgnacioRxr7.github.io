@@ -1,0 +1,43 @@
+import Phaser from "phaser";
+import Object from "../base-game-objects/Object";
+import Builder from "../../managers/Builder";
+import Options from '../../managers/Options.js';
+
+export default class Health extends Object {
+
+    static AUMENTO_VIDA = 7.5;
+
+    constructor(scene, x, y) {
+        super(scene, x, y, Builder.OBJ_VIDA, true)
+        this.body.setSize(65, 65)
+        this.body.setOffset(27, 27)
+        
+        this._displayHelperText = true
+        this._interactiveDistance = 110
+        this.setText("Pick up health")
+        this.light = this.scene.lights.addLight(this.x, this.y, 300, 0xffff00, 0.7);
+    }
+
+    player_overlaps(player) {
+
+        this._textoInteraccion.setVisible(true)
+		this._textoInteraccion.setPosition(this.x + this._offsetX, this.y + this._offsetY)
+
+        if(player.isFullHealth())
+            return
+        this.accion(player)
+    }
+
+
+    accion(player){
+
+        if(!player.isUseKeyJustPressed())
+			return
+        const options = Options.get_instance();
+        options.playSound(this.scene, 'pick_up_health', { isMusic: false, volume: 1.0 });
+        this.removeLight();
+        player.healthBoost(Health.AUMENTO_VIDA)
+        this.destroyObject()
+    }
+    getIsInteractive() { return true}
+}
